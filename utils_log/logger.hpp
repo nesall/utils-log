@@ -29,8 +29,8 @@
 namespace utils_log {
 
   namespace impl {
-    std::string outputFilePath = "output.log";
-    std::string diagnosticsFilePath = "diagnostics.log";
+    inline std::string outputFilePath = "output.log";
+    inline std::string diagnosticsFilePath = "diagnostics.log";
   }
 
 #define SET_LOGGING_OUTPUT_FILE_PATH(x) utils_log::impl::outputFilePath = (x)
