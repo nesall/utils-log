@@ -26,7 +26,15 @@
 #endif
 
 
-namespace utils {
+namespace utils_log {
+
+  namespace impl {
+    std::string outputFilePath = "output.log";
+    std::string diagnosticsFilePath = "diagnostics.log";
+  }
+
+#define SET_LOGGING_OUTPUT_FILE_PATH(x) utils_log::impl::outputFilePath = (x)
+#define SET_LOGGING_DIAGNOSTICS_FILE_PATH(x) utils_log::impl::diagnosticsFilePath = (x)
 
   // ============================================================================
   //                                Log
@@ -126,13 +134,13 @@ namespace utils {
     }
 
     static void ensureFileOpen() {
+      const std::string &fname = impl::outputFilePath;
       if (!initialized_) {
-        const std::string fname = "output.log";
         rotateIfTooLarge(fname, 5 * 1024 * 1024);
         fout_.open(fname, std::ios::app);
         initialized_ = true;
       } else if (!fout_.is_open()) {
-        fout_.open("output.log", std::ios::app);
+        fout_.open(fname, std::ios::app);
       }
     }
 
@@ -146,8 +154,8 @@ namespace utils {
     }
   };
 
-#define LOG_MSG utils::Log()
-#define LOG_MSGNF utils::Log(false)
+#define LOG_MSG utils_log::Log()
+#define LOG_MSGNF utils_log::Log(false)
 
 
   // ============================================================================
@@ -203,8 +211,6 @@ namespace utils {
       return oss.str();
     }
 
-    static std::string fileName() { return "diagnostics.log"; }
-
     static void rotateIfTooLarge(const std::string &fname, uintmax_t maxSize) {
       namespace fs = std::filesystem;
       if (fs::exists(fname) && maxSize < fs::file_size(fname)) {
@@ -226,7 +232,7 @@ namespace utils {
       if (crashChecked_) return crashedLastTime_;
       crashChecked_ = true;
 
-      const auto fname = fileName();
+      const auto &fname = impl::diagnosticsFilePath;
       if (!std::filesystem::exists(fname)) return false;
 
       const auto line = lastLine(fname);
@@ -244,7 +250,7 @@ namespace utils {
 
     static void ensureFileOpen() {
       if (!initialized_) {
-        const std::string fname = fileName();
+        const std::string &fname = impl::diagnosticsFilePath;
         rotateIfTooLarge(fname, 2ull * 1024 * 1024);
         fout_.open(fname, std::ios::app);
         initialized_ = true;
@@ -254,7 +260,7 @@ namespace utils {
           fout_.flush();
         }
       } else if (!fout_.is_open()) {
-        fout_.open(fileName(), std::ios::app);
+        fout_.open(impl::diagnosticsFilePath, std::ios::app);
       }
     }
 
@@ -275,8 +281,8 @@ namespace utils {
   };
 
   // Macros
-#define LOG_START utils::ScopeLogger _scopelog_(__FUNCTION__, __FILE__, __LINE__)
-#define LOG_START1(x) utils::ScopeLogger _scopelog_(__FUNCTION__, x, __FILE__, __LINE__)
+#define LOG_START utils_log::ScopeLogger _scopelog_(__FUNCTION__, __FILE__, __LINE__)
+#define LOG_START1(x) utils_log::ScopeLogger _scopelog_(__FUNCTION__, x, __FILE__, __LINE__)
 #define LOG_HERE(x) _scopelog_.here(x)
 
 } // namespace utils
