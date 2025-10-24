@@ -41,6 +41,10 @@ namespace utils_log {
   // ============================================================================
   class Log {
   public:
+    struct NospaceTag {};
+    struct SpaceTag {};
+    
+  public:
     explicit Log(bool toFile = true)
       : toFile_(toFile) {
     }
@@ -49,21 +53,31 @@ namespace utils_log {
 
     template <typename T>
     Log &operator<<(T &&val) {
-      if (hasLog_) ss_ << ' ';
+      if (hasLog_ && !noSpace_) ss_ << ' ';
       ss_ << std::forward<T>(val);
       hasLog_ = true;
       return *this;
     }
 
     Log &operator<<(std::string_view sv) {
-      if (hasLog_) ss_ << ' ';
+      if (hasLog_ && !noSpace_) ss_ << ' ';
       ss_ << sv;
       hasLog_ = true;
       return *this;
     }
+    
+    Log &operator<<(Log::NospaceTag) {
+      noSpace_ = true;
+      return *this;
+    }
+
+    Log &operator<<(Log::SpaceTag) {
+      noSpace_ = false;
+      return *this;
+    }
 
     Log &noquote() { return *this; }
-
+    
     void commit() {
       if (!hasLog_) return;
       const std::string msg = ss_.str();
@@ -101,6 +115,7 @@ namespace utils_log {
   private:
     bool toFile_;
     bool hasLog_ = false;
+    bool noSpace_ = false;
     std::ostringstream ss_;
 
     static inline std::ofstream fout_;
@@ -153,6 +168,9 @@ namespace utils_log {
       }
     }
   };
+
+inline constexpr Log::NospaceTag LOGNOSPACE{};
+inline constexpr Log::SpaceTag LOGSPACE{};
 
 #define LOG_MSG utils_log::Log()
 #define LOG_MSGNF utils_log::Log(false)
