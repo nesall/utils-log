@@ -31,10 +31,16 @@ namespace utils_log {
   namespace impl {
     inline std::string outputFilePath = "output.log";
     inline std::string diagnosticsFilePath = "diagnostics.log";
+
+    inline std::atomic_bool logToFile{ true };
+    inline std::atomic_bool logToConsole{ true };
   }
 
-#define SET_LOGGING_OUTPUT_FILE_PATH(x) utils_log::impl::outputFilePath = (x)
-#define SET_LOGGING_DIAGNOSTICS_FILE_PATH(x) utils_log::impl::diagnosticsFilePath = (x)
+#define SET_LOG_OUTPUT_FILE_PATH(x) utils_log::impl::outputFilePath = (x)
+#define SET_LOG_DIAGNOSTICS_FILE_PATH(x) utils_log::impl::diagnosticsFilePath = (x)
+
+#define SET_LOG_TO_FILE(x) utils_log::impl::logToFile = (x)
+#define SET_LOG_TO_CONSOLE(x) utils_log::impl::logToConsole = (x)
 
   // ============================================================================
   //                                Log
@@ -45,8 +51,8 @@ namespace utils_log {
     struct SpaceTag {};
     
   public:
-    explicit Log(bool toFile = true)
-      : toFile_(toFile) {
+    Log(bool toFile = impl::logToFile.load(), bool toConsole = impl::logToConsole.load())
+      : toFile_(toFile), toConsole_(toConsole) {
     }
 
     ~Log() { commit(); }
@@ -98,12 +104,16 @@ namespace utils_log {
 
       // Console log (always)
 #ifdef QT_CORE_LIB
-      qDebug().nospace().noquote() << "[" << dateTime().c_str() << "] tid=" << utils::cur_thread_id() << m.c_str() << " \"" << data.c_str() << "\"";
+      if (toConsole_) {
+        qDebug().nospace().noquote() << line.c_str();
+      }
 #else
-      std::cout << msg << std::endl;
+      if (toConsole_) {
+        std::cout << msg << std::endl;
 #ifdef _MSC_VER
-      ::OutputDebugStringA((msg + "\n").c_str());
+        ::OutputDebugStringA((msg + "\n").c_str());
 #endif // _MSC_VER
+      }
 #endif // QT_CORE_LIB
     }
 
@@ -114,6 +124,7 @@ namespace utils_log {
 
   private:
     bool toFile_;
+    bool toConsole_;
     bool hasLog_ = false;
     bool noSpace_ = false;
     std::ostringstream ss_;
@@ -171,6 +182,9 @@ namespace utils_log {
 
 inline constexpr Log::NospaceTag LOGNOSPACE{};
 inline constexpr Log::SpaceTag LOGSPACE{};
+
+#define LOG_NOSPACE utils_log::LOGNOSPACE
+#define LOG_SPACE utils_log::LOGSPACE
 
 #define LOG_MSG utils_log::Log()
 #define LOG_MSGNF utils_log::Log(false)
