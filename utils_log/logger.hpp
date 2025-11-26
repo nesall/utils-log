@@ -11,7 +11,8 @@
 #include <iomanip>
 #include <thread>
 #include <atomic>
-#include <format>
+//#include <format>
+#include <utility>
 #include <limits>
 
 #ifdef QT_CORE_LIB
@@ -27,6 +28,13 @@
 
 
 namespace utils_log {
+
+  template <typename... Args>
+  std::string strf(Args&&... args) {
+    std::ostringstream oss;
+    (oss << ... << std::forward<Args>(args));
+    return oss.str();
+  }
 
   namespace impl {
     inline std::string outputFilePath = "output.log";
@@ -91,7 +99,12 @@ namespace utils_log {
       ss_.clear();
       hasLog_ = false;
 
-      const auto line = std::format("[{}] tid={} \"{}\"", dateTime(), threadId(), msg);
+      //const auto line = std::format("[{}] tid={} \"{}\"", dateTime(), threadId(), msg);
+      const auto line = strf(
+        "[", dateTime(), "] tid=",
+        threadId(),
+        " \"", msg, "\""
+      );
 
       std::scoped_lock lock(globalMutex());
       if (toFile_) {
@@ -203,7 +216,10 @@ inline constexpr Log::SpaceTag LOGSPACE{};
     }
 
     ScopeLogger(std::string_view func, std::string_view name, std::string_view file, int line)
-      : func_(std::format("{}:{}", func, name)), file_(file), line_(line) {
+      : func_(
+        //std::format("{}:{}", func, name)
+        strf(func, ":", name)
+      ), file_(file), line_(line) {
       init();
       log("start...");
       count_++;
@@ -304,7 +320,13 @@ inline constexpr Log::SpaceTag LOGSPACE{};
     void log(std::string_view phase) const {
       std::scoped_lock lock(mutex_);
       ensureFileOpen();
-      const auto msg = std::format("[{}] {}:{} {} |{}\n", dateTime(), func_, phase, file_, count_.load());
+      //const auto msg = std::format("[{}] {}:{} {} |{}\n", dateTime(), func_, phase, file_, count_.load());
+      const auto msg = strf(
+        "[", dateTime(), "] ",
+        func_, ":", phase, " ",
+        file_, " |", count_.load(), "\n"
+      );
+
       if (fout_.good()) {
         fout_ << msg;
         fout_.flush();
