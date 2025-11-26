@@ -65,20 +65,22 @@ namespace utils_log {
 
     ~Log() { commit(); }
 
-    template <typename T>
-    Log &operator<<(T &&val) {
+    template <typename T,
+      typename = std::enable_if_t<!std::is_convertible_v<T, std::string_view>>>
+    Log &operator<<(T &&val)
+    {
       if (hasLog_ && !noSpace_) ss_ << ' ';
       ss_ << std::forward<T>(val);
       hasLog_ = true;
       return *this;
     }
 
-    //Log &operator<<(std::string_view sv) {
-    //  if (hasLog_ && !noSpace_) ss_ << ' ';
-    //  ss_ << sv;
-    //  hasLog_ = true;
-    //  return *this;
-    //}
+    Log &operator<<(std::string_view sv) {
+      if (hasLog_ && !noSpace_) ss_ << ' ';
+      ss_ << sv;
+      hasLog_ = true;
+      return *this;
+    }
     
     Log &operator<<(Log::NospaceTag) {
       noSpace_ = true;
