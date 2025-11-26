@@ -102,7 +102,7 @@ namespace utils_log {
       //const auto line = std::format("[{}] tid={} \"{}\"", dateTime(), threadId(), msg);
       const auto line = strf(
         "[", dateTime(), "] tid=",
-        threadId(),
+        static_cast<unsigned long long>(threadId()),
         " \"", msg, "\""
       );
 
