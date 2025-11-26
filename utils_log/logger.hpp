@@ -29,12 +29,12 @@
 
 namespace utils_log {
 
-  template <typename... Args>
-  std::string strf(Args&&... args) {
-    std::ostringstream oss;
-    (oss << ... << std::forward<Args>(args));
-    return oss.str();
-  }
+  //template <typename... Args>
+  //std::string strf(Args&&... args) {
+  //  std::ostringstream oss;
+  //  (oss << ... << std::forward<Args>(args));
+  //  return oss.str();
+  //}
 
   namespace impl {
     inline std::string outputFilePath = "output.log";
@@ -100,11 +100,7 @@ namespace utils_log {
       hasLog_ = false;
 
       //const auto line = std::format("[{}] tid={} \"{}\"", dateTime(), threadId(), msg);
-      const auto line = strf(
-        "[", dateTime(), "] tid=",
-        static_cast<unsigned long long>(threadId()),
-        " \"", msg, "\""
-      );
+      const auto line = "[" + dateTime() + "] tid=" + std::to_string(static_cast<unsigned long long>(threadId())) + " \"" + msg + "\"";
 
       std::scoped_lock lock(globalMutex());
       if (toFile_) {
@@ -218,7 +214,7 @@ inline constexpr Log::SpaceTag LOGSPACE{};
     ScopeLogger(std::string_view func, std::string_view name, std::string_view file, int line)
       : func_(
         //std::format("{}:{}", func, name)
-        strf(func, ":", name)
+        (std::string(func) + ":" + std::string(name))
       ), file_(file), line_(line) {
       init();
       log("start...");
@@ -321,11 +317,7 @@ inline constexpr Log::SpaceTag LOGSPACE{};
       std::scoped_lock lock(mutex_);
       ensureFileOpen();
       //const auto msg = std::format("[{}] {}:{} {} |{}\n", dateTime(), func_, phase, file_, count_.load());
-      const auto msg = strf(
-        "[", dateTime(), "] ",
-        func_, ":", phase, " ",
-        file_, " |", count_.load(), "\n"
-      );
+      const auto msg = ("[" + dateTime() + "] " + func_ + ":" + std::string(phase) + " " + file_ + " |" + std::to_string(count_.load()) + "\n");
 
       if (fout_.good()) {
         fout_ << msg;
