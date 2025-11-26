@@ -73,12 +73,12 @@ namespace utils_log {
       return *this;
     }
 
-    Log &operator<<(std::string_view sv) {
-      if (hasLog_ && !noSpace_) ss_ << ' ';
-      ss_ << sv;
-      hasLog_ = true;
-      return *this;
-    }
+    //Log &operator<<(std::string_view sv) {
+    //  if (hasLog_ && !noSpace_) ss_ << ' ';
+    //  ss_ << sv;
+    //  hasLog_ = true;
+    //  return *this;
+    //}
     
     Log &operator<<(Log::NospaceTag) {
       noSpace_ = true;
