@@ -40,7 +40,7 @@ namespace utils_log {
     inline std::atomic_bool logToFile{ true };
     inline std::atomic_bool logToConsole{ true };
 
-    std::string dateTime() {
+    inline std::string dateTime() {
       using namespace std::chrono;
       const auto now = system_clock::now();
       const auto t = system_clock::to_time_t(now);
