@@ -1,0 +1,100 @@
+# Build directories
+dist/
+build/
+build-dbg/
+build_dbg/
+build-rel/
+build_rel/
+cmake-build-*/
+cmake/
+bin/
+tmp/
+temp/
+test/
+dist.*
+*.zip
+*.so
+*.dll
+*.dylib
+
+# Large datasets & scratch files
+data/processed/
+data/querying/*.jsonl
+data/querying/archive/
+data/querying/huggingface/
+data/querying/quality_report/
+data/querying/embeddings.npy
+
+# Keep benchmarks tracked
+!data/benchmarks/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Testing
+Testing/
+CTestTestfile.cmake
+
+# Coverage reports
+*.gcov
+*.gcno
+*.gcda
+coverage/
+lcov.info
+
+# Benchmarks output
+benchmarks/results/
+*.prof
+
+
+# Other files
+*.db
+*.index
+*.log
+
+# Python caches
+__pycache__/
+*.py[cod]
+.venv/
+
