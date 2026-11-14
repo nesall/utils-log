@@ -53,7 +53,7 @@ namespace utils_log {
 #endif
       char buf[32];
       std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
-      char result[32];
+      char result[40];
       std::snprintf(result, sizeof(result), "%s.%03lld", buf, static_cast<long long>(ms));
       return result;
     }
