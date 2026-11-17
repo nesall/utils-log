@@ -60,6 +60,7 @@ namespace utils_log {
 
   }
 
+#define GET_MIN_LOG_LEVEL() utils_log::impl::minLevel.load()
 #define SET_LOG_MIN_LEVEL(x) utils_log::impl::minLevel = (x)
 #define SET_LOG_OUTPUT_FILE_PATH(x) utils_log::Log::setOutputFile(x)
 #define SET_LOG_DIAGNOSTICS_FILE_PATH(x) utils_log::ScopeLogger::setFile(x)
